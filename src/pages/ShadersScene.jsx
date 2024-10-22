@@ -2,7 +2,8 @@ import { useEffect } from "react"
 import * as THREE from "three"
 
 import SceneInit from "../lib/SceneInit"
-import vertex from "../_Scenes/WaterShader/Shaders/water.vert"
+// import vertex from "../_Scenes/WaterShader/Shaders/water.vert"
+import vertexFBM from "../_Scenes/WaterShader/Shaders/waterFBM.vert"
 import fragment from "../_Scenes/WaterShader/Shaders/waterFrag.frag"
 import {
     createVertexShaderGUI,
@@ -17,9 +18,9 @@ export default function ShadersScene() {
         const mainScene = new SceneInit("shaderCanvas")
         mainScene.initialize()
         mainScene.animate()
-        //
-        //         const axesHelper = new THREE.AxesHelper(16)
-        //         mainScene.scene.add(axesHelper)
+
+        // const axesHelper = new THREE.AxesHelper(16)
+        // mainScene.scene.add(axesHelper)
 
         const sphere = new THREE.SphereGeometry(0.5, 32, 32)
         const sphereMaterial = new THREE.MeshBasicMaterial({
@@ -41,7 +42,7 @@ export default function ShadersScene() {
 
         const uniformData = createUniformData(mainScene.clock)
         const vertexShaderGUI = createVertexShaderGUI(uniformData)
-        const fragmentShaderGUI = createFragmentShaderGUI(arrowHelper, sphereMesh)
+        const fragmentShaderGUI = createFragmentShaderGUI(arrowHelper, sphereMesh, mainScene.camera)
 
         const geometry = new THREE.PlaneGeometry(
             PLANE_PARAMS.width,
@@ -52,8 +53,8 @@ export default function ShadersScene() {
         const material = new THREE.ShaderMaterial({
             wireframe: PLANE_PARAMS.wireframe,
             uniforms: uniformData,
-            vertexShader: vertex,
-            // vertexShader: vertex2,
+            // vertexShader: vertex,
+            vertexShader: vertexFBM,
             fragmentShader: fragment,
         })
 

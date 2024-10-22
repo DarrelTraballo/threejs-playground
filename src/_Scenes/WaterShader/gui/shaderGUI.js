@@ -9,6 +9,7 @@ export const createUniformData = (clock) => ({
         type: "f",
         value: clock.getElapsedTime(),
     },
+    uSkybox: UNIFORMS.uSkybox,
 })
 
 export function createVertexShaderGUI(uniformData) {
@@ -16,16 +17,16 @@ export function createVertexShaderGUI(uniformData) {
 
     const vertexFolder = gui.addFolder("Vertex Shader Properties")
 
-    vertexFolder.add(uniformData.uWaveCount, "value", 1, 4, 1).name("Number of Waves")
+    vertexFolder.add(uniformData.uWaveCount, "value", 1, WAVE_PARAMS.MAX_WAVES, 1).name("Number of Waves")
 
-    for (let waveIndex = 0; waveIndex < WAVE_PARAMS.MAX_WAVES; waveIndex++) {
+    for (let waveIndex = 0; waveIndex < 1; waveIndex++) {
         const waveFolder = vertexFolder.addFolder(`Wave ${waveIndex + 1}`)
 
         const waveControls = {
             amplitude: uniformData.uWaveParams.value[waveIndex].x,
             frequency: uniformData.uWaveParams.value[waveIndex].y,
             speed: uniformData.uWaveParams.value[waveIndex].z,
-            direction: uniformData.uWaveParams.value[waveIndex].w > 0,
+            persistence: uniformData.uWaveParams.value[waveIndex].w,
         }
 
         waveFolder
@@ -62,22 +63,57 @@ export function createVertexShaderGUI(uniformData) {
             })
 
         waveFolder
-            .add(waveControls, "direction")
-            .name("Direction")
+            .add(
+                waveControls,
+                "persistence",
+                WAVE_PARAMS.persistence.min,
+                WAVE_PARAMS.persistence.max,
+                WAVE_PARAMS.persistence.step
+            )
+            .name("Persistence")
             .onChange((value) => {
-                uniformData.uWaveParams.value[waveIndex].w = value ? 1.0 : -1.0
+                uniformData.uWaveParams.value[waveIndex].w = value
             })
-
-        waveFolder.open()
+        if (waveIndex === 0) {
+            waveFolder.open()
+        }
     }
     vertexFolder.open()
     return gui
 }
 
-export function createFragmentShaderGUI(arrowHelper, sphereMesh) {
+export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
     const gui = new dat.GUI()
 
     const fragmentFolder = gui.addFolder("Fragment Shader Properties")
+
+    const cameraPresets = {
+        lowAngle: {
+            name: "Low Angle",
+            light: { x: 8.0, y: 4.0, z: 8.0 },
+            camera: { x: -12.0, y: 3.0, z: -12.0 },
+        },
+        dramatic: {
+            name: "Dramatic Shadows",
+            light: { x: 15.0, y: 8.0, z: 0.0 },
+            camera: { x: -12.0, y: 6.0, z: -8.0 },
+        },
+        threeQuarter: {
+            name: "Three Quarter View",
+            light: { x: 12.0, y: 8.0, z: 12.0 },
+            camera: { x: -10.0, y: 6.0, z: -10.0 },
+        },
+        sideLight: {
+            name: "Side Lighting",
+            light: { x: 15.0, y: 3.0, z: 0.0 },
+            camera: { x: -8.0, y: 5.0, z: -12.0 },
+        },
+        dramatic45: {
+            name: "Dramatic 45°",
+            light: { x: 12.0, y: 12.0, z: 0.0 },
+            camera: { x: -8.0, y: 8.0, z: -12.0 },
+        },
+    }
 
     const config = {
         color: [
@@ -86,12 +122,28 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh) {
             UNIFORMS.uWaveColor.value.b * 255,
         ],
         smoothness: UNIFORMS.uSmoothness.value,
-        showLightDirection: true,
+        fresnelPower: UNIFORMS.uFresnelPower.value,
+        showLightDirection: false,
         lightDirection: {
             x: UNIFORMS.uLightDirection.value.x,
             y: UNIFORMS.uLightDirection.value.y,
             z: UNIFORMS.uLightDirection.value.z,
         },
+        cameraPreset: "lowAngle",
+    }
+
+    const updatePreset = (presetName) => {
+        const preset = cameraPresets[presetName]
+        if (!preset) return
+
+        config.lightDirection.x = preset.light.x
+        config.lightDirection.y = preset.light.y
+        config.lightDirection.z = preset.light.z
+        updateLightDirection()
+
+        camera.position.set(preset.camera.x, preset.camera.y, preset.camera.z)
+
+        camera.lookAt(0, 0, 0)
     }
 
     fragmentFolder
@@ -111,7 +163,15 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh) {
             UNIFORMS.uSmoothness.value = value
         })
 
-    const lightFolder = fragmentFolder.addFolder("Light Direction")
+    fragmentFolder
+        .add(config, "fresnelPower")
+        .min(FRAGMENT_PARAMS.fresnelPower.min)
+        .max(FRAGMENT_PARAMS.fresnelPower.max)
+        .step(FRAGMENT_PARAMS.fresnelPower.step)
+        .name("Fresnel Power")
+        .onChange((value) => {
+            UNIFORMS.uFresnelPower.value = value
+        })
 
     const updateLightDirection = () => {
         const direction = new THREE.Vector3(
@@ -127,7 +187,7 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh) {
         sphereMesh.position.copy(direction.multiplyScalar(lightDistance))
     }
 
-    lightFolder
+    fragmentFolder
         .add(config, "showLightDirection")
         .name("Show Light Direction")
         .onChange((value) => {
@@ -135,31 +195,17 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh) {
             sphereMesh.visible = value
         })
 
-    lightFolder
-        .add(config.lightDirection, "x")
-        .min(FRAGMENT_PARAMS.lightDir.x.min)
-        .max(FRAGMENT_PARAMS.lightDir.x.max)
-        .step(FRAGMENT_PARAMS.lightDir.x.step)
-        .name("X")
-        .onChange(() => updateLightDirection())
+    fragmentFolder
+        .add(config, "cameraPreset", {
+            "Low Angle": "lowAngle",
+            "Dramatic Shadows": "dramatic",
+            "Three Quarter View": "threeQuarter",
+            "Side Lighting": "sideLight",
+            "Dramatic 45°": "dramatic45",
+        })
+        .name("Viewing Preset")
+        .onChange(updatePreset)
 
-    lightFolder
-        .add(config.lightDirection, "y")
-        .min(FRAGMENT_PARAMS.lightDir.y.min)
-        .max(FRAGMENT_PARAMS.lightDir.y.max)
-        .step(FRAGMENT_PARAMS.lightDir.y.step)
-        .name("Y")
-        .onChange(() => updateLightDirection())
-
-    lightFolder
-        .add(config.lightDirection, "z")
-        .min(FRAGMENT_PARAMS.lightDir.z.min)
-        .max(FRAGMENT_PARAMS.lightDir.z.max)
-        .step(FRAGMENT_PARAMS.lightDir.z.step)
-        .name("Z")
-        .onChange(() => updateLightDirection())
-
-    lightFolder.open()
     fragmentFolder.open()
 
     updateLightDirection()

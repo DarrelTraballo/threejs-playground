@@ -7,8 +7,10 @@ varying vec3 vNormal;
 varying vec2 vUv;
 varying vec3 vWorldPosition;
 
-float sineWave(float pos, float frequency, float speed, float direction) {
-    return pos * frequency + (direction * uTime) * speed;
+float sineWave(vec2 pos, float frequency, float speed, float direction, float angle) {
+    float diagonalPos = pos.x * cos(angle) + pos.y * sin(angle);
+
+    return diagonalPos * frequency + (direction * uTime) * speed;
 }
 
 void main() {
@@ -28,9 +30,17 @@ void main() {
         float speed = uWaveParams[i].z;
         float direction = uWaveParams[i].w;
 
-        float pos = (mod(float(i), 2.0) == 0.0) ? position.x : position.y;
+        float angles[4] = float[4](0.785398,    // 45 degrees for wave 0
+        -0.785398,   // -45 degrees for wave 1
+        0.523599,    // 30 degrees for wave 2
+        -0.523599    // -30 degrees for wave 3
+        );
 
-        waves[i] = sineWave(pos, frequency, speed, direction);
+        // float pos = (mod(float(i), 2.0) == 0.0) ? position.x : position.y;
+
+        vec2 pos = vec2(position.x, position.y);
+
+        waves[i] = sineWave(pos, frequency, speed, direction, angles[i]);
         waveLengths[i] = speed / frequency;
 
         finalPosition.y += amplitude * (sin(waves[i]) + 1.0) * 0.5; // last bit normalizes wave to 0-1 range
@@ -49,30 +59,38 @@ void main() {
 
     for(int i = 0; i < uWaveCount; i++) {
         float amplitude = uWaveParams[i].x;
-        vec3 tangent;
+        float angles[4] = float[4](0.785398,    // 45 degrees for wave 0
+        -0.785398,   // -45 degrees for wave 1
+        0.523599,    // 30 degrees for wave 2
+        -0.523599    // -30 degrees for wave 3
+        );
 
-        if(mod(float(i), 2.0) == 0.0) {
-            // X-direction waves (A and B)
-            tangent = normalize(vec3(1.0, waveLengths[i] * amplitude * cos(waves[i]), 0.0));
-            vec3 waveNormal = vec3(-tangent.y, tangent.x, 0.0);
-            newNormal += waveNormal;
-        } else {
-            // Z-direction waves (C and D)
-            tangent = normalize(vec3(0.0, waveLengths[i] * amplitude * cos(waves[i]), 1.0));
-            vec3 waveNormal = vec3(0.0, tangent.x, -tangent.y);
-            newNormal += waveNormal;
-        }
+        vec3 tangent = normalize(vec3(cos(angles[i]), waveLengths[i] * amplitude * cos(waves[i]), sin(angles[i])));
+
+        vec3 waveNormal = normalize(vec3(-tangent.y * cos(angles[i]), tangent.x, -tangent.y * sin(angles[i])));
+
+        newNormal += waveNormal;
+
+        // if(mod(float(i), 2.0) == 0.0) {
+        //     // X-direction waves (A and B)
+        //     tangent = normalize(vec3(1.0, waveLengths[i] * amplitude * cos(waves[i]), 0.0));
+        //     vec3 waveNormal = vec3(-tangent.y, tangent.x, 0.0);
+        //     newNormal += waveNormal;
+        // } else {
+        //     // Z-direction waves (C and D)
+        //     tangent = normalize(vec3(0.0, waveLengths[i] * amplitude * cos(waves[i]), 1.0));
+        //     vec3 waveNormal = vec3(0.0, tangent.x, -tangent.y);
+        //     newNormal += waveNormal;
+        // }
     }
 
-    // Calculate normals for combined waves
-    // A + C Wave (wave[4])
-    vec3 tangent5 = normalize(vec3(1.0, waveLengths[4] * uWaveParams[0].x * cos(waves[4]), 0.0));
-    vec3 normal5 = vec3(-tangent5.y, tangent5.x, 0.0);
+    // Calculate normals for combined waves (adjusted for diagonal motion)
+    vec3 tangent5 = normalize(vec3(cos(0.785398), waveLengths[4] * uWaveParams[0].x * cos(waves[4]), sin(0.785398)));
+    vec3 normal5 = normalize(vec3(-tangent5.y * cos(0.785398), tangent5.x, -tangent5.y * sin(0.785398)));
     newNormal += normal5;
 
-    // Combined wave D+B (wave[5])
-    vec3 tangent6 = normalize(vec3(1.0, waveLengths[5] * uWaveParams[3].x * cos(waves[5]), 0.0));
-    vec3 normal6 = vec3(-tangent6.y, tangent6.x, 0.0);
+    vec3 tangent6 = normalize(vec3(cos(-0.785398), waveLengths[5] * uWaveParams[3].x * cos(waves[5]), sin(-0.785398)));
+    vec3 normal6 = normalize(vec3(-tangent6.y * cos(-0.785398), tangent6.x, -tangent6.y * sin(-0.785398)));
     newNormal += normal6;
 
     newNormal = normalize(newNormal);

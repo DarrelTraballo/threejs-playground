@@ -2,15 +2,15 @@ import * as THREE from "three"
 import { randomBetween } from "../../../lib/utils"
 
 export const PLANE_PARAMS = {
-    width: 20,
-    height: 20,
-    widthSegments: 50,
-    heightSegments: 50,
+    width: 100,
+    height: 100,
+    widthSegments: 100,
+    heightSegments: 100,
     wireframe: false,
 }
 
 export const WAVE_PARAMS = {
-    MAX_WAVES: 4,
+    MAX_WAVES: 12,
     amplitude: {
         min: 0.1,
         max: 2,
@@ -26,12 +26,22 @@ export const WAVE_PARAMS = {
         max: 2,
         step: 0.1,
     },
+    persistence: {
+        min: 0.1,
+        max: 1,
+        step: 0.1,
+    },
 }
 
 export const FRAGMENT_PARAMS = {
     smoothness: {
         min: 10,
         max: 200,
+        step: 1,
+    },
+    fresnelPower: {
+        min: 1,
+        max: 20,
         step: 1,
     },
     lightDir: {
@@ -72,7 +82,7 @@ export const UNIFORMS = {
                         randomBetween(WAVE_PARAMS.amplitude.min, WAVE_PARAMS.amplitude.max), // amplitude
                         randomBetween(WAVE_PARAMS.frequency.min, WAVE_PARAMS.frequency.max), // frequency
                         randomBetween(WAVE_PARAMS.speed.min, WAVE_PARAMS.speed.max), // speed
-                        1.0 // direction (1.0 for true, -1.0 for false)
+                        0.8 // persistence
                     )
             ),
     },
@@ -83,10 +93,20 @@ export const UNIFORMS = {
     },
     uLightDirection: {
         type: "v3",
-        value: new THREE.Vector3(5.0, 5.0, 5.0),
+        // value: new THREE.Vector3(10.0, 10.0, 10.0), // balanced shadows
+        // value: new THREE.Vector3(12.0, 8.0, 12.0), // good for showing wave detail
+        value: new THREE.Vector3(15.0, 8.0, 0.0), // dramatic shadows
     },
     uSmoothness: {
         type: "f",
         value: 200,
+    },
+    uFresnelPower: {
+        type: "f",
+        value: 10.0,
+    },
+    uSkybox: {
+        type: "t",
+        value: null,
     },
 }
