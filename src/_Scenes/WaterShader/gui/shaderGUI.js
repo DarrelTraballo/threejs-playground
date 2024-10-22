@@ -19,65 +19,62 @@ export function createVertexShaderGUI(uniformData) {
 
     vertexFolder.add(uniformData.uWaveCount, "value", 1, WAVE_PARAMS.MAX_WAVES, 1).name("Number of Waves")
 
-    for (let waveIndex = 0; waveIndex < 1; waveIndex++) {
-        const waveFolder = vertexFolder.addFolder(`Wave ${waveIndex + 1}`)
+    const waveFolder = vertexFolder.addFolder(`Wave`)
 
-        const waveControls = {
-            amplitude: uniformData.uWaveParams.value[waveIndex].x,
-            frequency: uniformData.uWaveParams.value[waveIndex].y,
-            speed: uniformData.uWaveParams.value[waveIndex].z,
-            persistence: uniformData.uWaveParams.value[waveIndex].w,
-        }
-
-        waveFolder
-            .add(
-                waveControls,
-                "amplitude",
-                WAVE_PARAMS.amplitude.min,
-                WAVE_PARAMS.amplitude.max,
-                WAVE_PARAMS.amplitude.step
-            )
-            .name("Amplitude")
-            .onChange((value) => {
-                uniformData.uWaveParams.value[waveIndex].x = value
-            })
-
-        waveFolder
-            .add(
-                waveControls,
-                "frequency",
-                WAVE_PARAMS.frequency.min,
-                WAVE_PARAMS.frequency.max,
-                WAVE_PARAMS.frequency.step
-            )
-            .name("Frequency")
-            .onChange((value) => {
-                uniformData.uWaveParams.value[waveIndex].y = value
-            })
-
-        waveFolder
-            .add(waveControls, "speed", WAVE_PARAMS.speed.min, WAVE_PARAMS.speed.max, WAVE_PARAMS.speed.step)
-            .name("Speed")
-            .onChange((value) => {
-                uniformData.uWaveParams.value[waveIndex].z = value
-            })
-
-        waveFolder
-            .add(
-                waveControls,
-                "persistence",
-                WAVE_PARAMS.persistence.min,
-                WAVE_PARAMS.persistence.max,
-                WAVE_PARAMS.persistence.step
-            )
-            .name("Persistence")
-            .onChange((value) => {
-                uniformData.uWaveParams.value[waveIndex].w = value
-            })
-        if (waveIndex === 0) {
-            waveFolder.open()
-        }
+    const waveControls = {
+        amplitude: uniformData.uWaveParams.value.x,
+        frequency: uniformData.uWaveParams.value.y,
+        speed: uniformData.uWaveParams.value.z,
+        persistence: uniformData.uWaveParams.value.w,
     }
+
+    waveFolder
+        .add(
+            waveControls,
+            "amplitude",
+            WAVE_PARAMS.amplitude.min,
+            WAVE_PARAMS.amplitude.max,
+            WAVE_PARAMS.amplitude.step
+        )
+        .name("Amplitude")
+        .onChange((value) => {
+            uniformData.uWaveParams.value.x = value
+        })
+
+    waveFolder
+        .add(
+            waveControls,
+            "frequency",
+            WAVE_PARAMS.frequency.min,
+            WAVE_PARAMS.frequency.max,
+            WAVE_PARAMS.frequency.step
+        )
+        .name("Frequency")
+        .onChange((value) => {
+            uniformData.uWaveParams.value.y = value
+        })
+
+    waveFolder
+        .add(waveControls, "speed", WAVE_PARAMS.speed.min, WAVE_PARAMS.speed.max, WAVE_PARAMS.speed.step)
+        .name("Speed")
+        .onChange((value) => {
+            uniformData.uWaveParams.value.z = value
+        })
+
+    waveFolder
+        .add(
+            waveControls,
+            "persistence",
+            WAVE_PARAMS.persistence.min,
+            WAVE_PARAMS.persistence.max,
+            WAVE_PARAMS.persistence.step
+        )
+        .name("Persistence")
+        .onChange((value) => {
+            uniformData.uWaveParams.value.w = value
+        })
+
+    waveFolder.open()
     vertexFolder.open()
     return gui
 }

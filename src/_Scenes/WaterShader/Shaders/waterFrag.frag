@@ -35,6 +35,8 @@ void main() {
     // Fresnel Effect
     float fresnelFactor = pow(1.0 - max(dot(viewDir, normal), 0.0), uFresnelPower);
 
+    specular *= fresnelFactor;
+
     vec3 lighting = ambient + diffuse + specular;
     // lighting = ambient * 0.0 + diffuse * 0.5 + specular * 0.5;
     

@@ -10,7 +10,7 @@ export const PLANE_PARAMS = {
 }
 
 export const WAVE_PARAMS = {
-    MAX_WAVES: 12,
+    MAX_WAVES: 16,
     amplitude: {
         min: 0.1,
         max: 2,
@@ -73,18 +73,13 @@ export const UNIFORMS = {
         value: 4,
     },
     uWaveParams: {
-        type: "v4v", // Array of vec4
-        value: Array(WAVE_PARAMS.MAX_WAVES)
-            .fill()
-            .map(
-                () =>
-                    new THREE.Vector4(
-                        randomBetween(WAVE_PARAMS.amplitude.min, WAVE_PARAMS.amplitude.max), // amplitude
-                        randomBetween(WAVE_PARAMS.frequency.min, WAVE_PARAMS.frequency.max), // frequency
-                        randomBetween(WAVE_PARAMS.speed.min, WAVE_PARAMS.speed.max), // speed
-                        0.8 // persistence
-                    )
-            ),
+        type: "v4", // Array of vec4
+        value: new THREE.Vector4(
+            randomBetween(WAVE_PARAMS.amplitude.min, WAVE_PARAMS.amplitude.max), // amplitude
+            randomBetween(WAVE_PARAMS.frequency.min, WAVE_PARAMS.frequency.max), // frequency
+            randomBetween(WAVE_PARAMS.speed.min, WAVE_PARAMS.speed.max), // speed
+            0.8 // persistence
+        ),
     },
     uWaveColor: {
         type: "v3",
