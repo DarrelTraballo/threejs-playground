@@ -1,7 +1,7 @@
 import * as dat from "dat.gui"
 import * as THREE from "three"
 
-import { PLANE_PARAMS, WAVE_PARAMS, FRAGMENT_PARAMS, UNIFORMS } from "../configs/params"
+import { PLANE_PARAMS, WAVE_PARAMS, FRAGMENT_PARAMS, UNIFORMS, CAMERA_PRESETS } from "../configs/params"
 
 export const createUniformData = (clock) => ({
     ...UNIFORMS,
@@ -26,6 +26,7 @@ export function createVertexShaderGUI(uniformData) {
         frequency: uniformData.uWaveParams.value.y,
         speed: uniformData.uWaveParams.value.z,
         persistence: uniformData.uWaveParams.value.w,
+        peakHeight: uniformData.uPeakHeight.value,
     }
 
     waveFolder
@@ -74,6 +75,19 @@ export function createVertexShaderGUI(uniformData) {
             uniformData.uWaveParams.value.w = value
         })
 
+    waveFolder
+        .add(
+            waveControls,
+            "peakHeight",
+            WAVE_PARAMS.peakHeight.min,
+            WAVE_PARAMS.peakHeight.max,
+            WAVE_PARAMS.peakHeight.step
+        )
+        .name("Peak Height")
+        .onChange((value) => {
+            uniformData.uPeakHeight.value = value
+        })
+
     waveFolder.open()
     vertexFolder.open()
     return gui
@@ -83,34 +97,6 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
     const gui = new dat.GUI()
 
     const fragmentFolder = gui.addFolder("Fragment Shader Properties")
-
-    const cameraPresets = {
-        lowAngle: {
-            name: "Low Angle",
-            light: { x: 8.0, y: 4.0, z: 8.0 },
-            camera: { x: -12.0, y: 3.0, z: -12.0 },
-        },
-        dramatic: {
-            name: "Dramatic Shadows",
-            light: { x: 15.0, y: 8.0, z: 0.0 },
-            camera: { x: -12.0, y: 6.0, z: -8.0 },
-        },
-        threeQuarter: {
-            name: "Three Quarter View",
-            light: { x: 12.0, y: 8.0, z: 12.0 },
-            camera: { x: -10.0, y: 6.0, z: -10.0 },
-        },
-        sideLight: {
-            name: "Side Lighting",
-            light: { x: 15.0, y: 3.0, z: 0.0 },
-            camera: { x: -8.0, y: 5.0, z: -12.0 },
-        },
-        dramatic45: {
-            name: "Dramatic 45°",
-            light: { x: 12.0, y: 12.0, z: 0.0 },
-            camera: { x: -8.0, y: 8.0, z: -12.0 },
-        },
-    }
 
     const config = {
         color: [
@@ -130,7 +116,7 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
     }
 
     const updatePreset = (presetName) => {
-        const preset = cameraPresets[presetName]
+        const preset = CAMERA_PRESETS[presetName]
         if (!preset) return
 
         config.lightDirection.x = preset.light.x
@@ -199,6 +185,7 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
             "Three Quarter View": "threeQuarter",
             "Side Lighting": "sideLight",
             "Dramatic 45°": "dramatic45",
+            "Horizon View": "horizonView",
         })
         .name("Viewing Preset")
         .onChange(updatePreset)
@@ -229,9 +216,9 @@ export function createPlaneGUI(mesh, updateMesh) {
         updateMesh()
     }
 
-    meshFolder.add(PLANE_PARAMS, "width").min(5).max(100).step(1).name("Dimensions").onChange(adjustDimensions)
+    meshFolder.add(PLANE_PARAMS, "width").min(5).max(200).step(1).name("Dimensions").onChange(adjustDimensions)
 
-    meshFolder.add(PLANE_PARAMS, "widthSegments").min(1).max(100).step(1).name("Segments").onChange(adjustSegments)
+    meshFolder.add(PLANE_PARAMS, "widthSegments").min(1).max(150).step(1).name("Segments").onChange(adjustSegments)
 
     meshFolder.open()
 

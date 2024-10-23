@@ -2,10 +2,10 @@ import * as THREE from "three"
 import { randomBetween } from "../../../lib/utils"
 
 export const PLANE_PARAMS = {
-    width: 100,
-    height: 100,
-    widthSegments: 100,
-    heightSegments: 100,
+    width: 200,
+    height: 200,
+    widthSegments: 150,
+    heightSegments: 150,
     wireframe: false,
 }
 
@@ -27,6 +27,11 @@ export const WAVE_PARAMS = {
         step: 0.1,
     },
     persistence: {
+        min: 0.1,
+        max: 1,
+        step: 0.1,
+    },
+    peakHeight: {
         min: 0.1,
         max: 1,
         step: 0.1,
@@ -63,6 +68,39 @@ export const FRAGMENT_PARAMS = {
     },
 }
 
+export const CAMERA_PRESETS = {
+    lowAngle: {
+        name: "Low Angle",
+        light: { x: 40.0, y: 20.0, z: 40.0 },
+        camera: { x: -60.0, y: 15.0, z: -60.0 },
+    },
+    dramatic: {
+        name: "Dramatic Shadows",
+        light: { x: 75.0, y: 40.0, z: 0.0 },
+        camera: { x: -70.0, y: 30.0, z: -50.0 },
+    },
+    threeQuarter: {
+        name: "Three Quarter View",
+        light: { x: 60.0, y: 40.0, z: 60.0 },
+        camera: { x: -80.0, y: 40.0, z: -80.0 },
+    },
+    sideLight: {
+        name: "Side Lighting",
+        light: { x: 80.0, y: 15.0, z: 0.0 },
+        camera: { x: -50.0, y: 25.0, z: -90.0 },
+    },
+    dramatic45: {
+        name: "Dramatic 45°",
+        light: { x: 60.0, y: 60.0, z: 0.0 },
+        camera: { x: -70.0, y: 45.0, z: -70.0 },
+    },
+    horizonView: {
+        name: "Horizon View",
+        light: { x: 40.0, y: 60.0, z: -80.0 }, // Light coming from this corner
+        camera: { x: -40.0, y: 4.0, z: 80.0 }, // Camera in opposite corner
+    },
+}
+
 export const UNIFORMS = {
     uResolution: {
         type: "v2",
@@ -70,7 +108,7 @@ export const UNIFORMS = {
     },
     uWaveCount: {
         type: "i",
-        value: 4,
+        value: 12,
     },
     uWaveParams: {
         type: "v4", // Array of vec4
@@ -81,6 +119,10 @@ export const UNIFORMS = {
             0.8 // persistence
         ),
     },
+    uPeakHeight: {
+        type: "f",
+        value: 0.8,
+    },
     uWaveColor: {
         type: "v3",
         // value: new THREE.Color(0x3a4851), // Acerola colors
@@ -88,13 +130,15 @@ export const UNIFORMS = {
     },
     uLightDirection: {
         type: "v3",
-        // value: new THREE.Vector3(10.0, 10.0, 10.0), // balanced shadows
-        // value: new THREE.Vector3(12.0, 8.0, 12.0), // good for showing wave detail
-        value: new THREE.Vector3(15.0, 8.0, 0.0), // dramatic shadows
+        value: new THREE.Vector3(
+            CAMERA_PRESETS.lowAngle.light.x,
+            CAMERA_PRESETS.lowAngle.light.y,
+            CAMERA_PRESETS.lowAngle.light.z
+        ), // low angle light direction
     },
     uSmoothness: {
         type: "f",
-        value: 200,
+        value: 100,
     },
     uFresnelPower: {
         type: "f",

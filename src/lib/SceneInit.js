@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import Stats from "three/examples/jsm/libs/stats.module"
-import { UNIFORMS } from "../_Scenes/WaterShader/configs/params"
+import { UNIFORMS, CAMERA_PRESETS } from "../_Scenes/WaterShader/configs/params"
 
 export default class SceneInit {
     constructor(canvasID) {
@@ -38,9 +38,8 @@ export default class SceneInit {
             this.farPlane
         )
         // this.camera.position.z = 16 // default
-        // this.camera.position.set(-10.0, 7.0, -10.0) // for (10, 10, 10) light position
-        this.camera.position.set(-12.0, 6.0, -8.0) // for (15.0, 8.0, 0.0) light position
-        // this.camera.position.set(-10.0, 6.0, -10.0) // for (12.0, 8.0, 12.0) light position
+        const lowAnglePreset = CAMERA_PRESETS.lowAngle
+        this.camera.position.set(lowAnglePreset.camera.x, lowAnglePreset.camera.y, lowAnglePreset.camera.z)
 
         this.camera.lookAt(0, 0, 0)
 

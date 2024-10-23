@@ -1,6 +1,7 @@
 uniform float uTime;
 uniform int uWaveCount;
 uniform vec4 uWaveParams; // [amplitude, frequency, speed, persistence]
+uniform float uPeakHeight;
 
 varying vec3 vPosition;
 varying vec3 vNormal;
@@ -22,6 +23,13 @@ float sineWave(vec2 st, vec2 direction, float frequency, float speed, float phas
     return sin(angle * frequency + uTime * speed + phase);
 }
 
+float steepSineWave(vec2 st, vec2 direction, float frequency, float speed, float phase) {
+    float angle = -dot(st, direction);
+    float wave = sin(angle * frequency + uTime * speed + phase);
+    float asymmetry = uPeakHeight;
+    return sign(wave) * (exp(abs(wave) * asymmetry) - 1.0);
+}
+
 float sineFbm(vec2 st) {
     float amplitude = uWaveParams.x;
     float frequency = uWaveParams.y;
@@ -33,7 +41,8 @@ float sineFbm(vec2 st) {
     for(int i = 0; i < uWaveCount; i++) {
         vec2 dir = randomDirection(float(i));
 
-        float wave = sineWave(st, dir, frequency, uWaveParams.z, float(i) * 0.5);
+        // float wave = sineWave(st, dir, frequency, uWaveParams.z, float(i) * 0.5);
+        float wave = steepSineWave(st, dir, frequency, uWaveParams.z, float(i) * 0.5);
 
         value += amplitude * wave;
         maxValue += amplitude;

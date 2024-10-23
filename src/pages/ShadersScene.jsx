@@ -29,6 +29,7 @@ export default function ShadersScene() {
         const sphereMesh = new THREE.Mesh(sphere, sphereMaterial)
         sphereMesh.position.set(5, 5, 5)
         mainScene.scene.add(sphereMesh)
+        sphereMesh.visible = false
 
         const arrowHelper = new THREE.ArrowHelper(
             new THREE.Vector3(5, 5, 5),
@@ -39,6 +40,7 @@ export default function ShadersScene() {
             0.5
         )
         mainScene.scene.add(arrowHelper)
+        arrowHelper.visible = false
 
         const uniformData = createUniformData(mainScene.clock)
         const vertexShaderGUI = createVertexShaderGUI(uniformData)
