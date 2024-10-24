@@ -38,7 +38,7 @@ export default class SceneInit {
             this.farPlane
         )
         // this.camera.position.z = 16 // default
-        const lowAnglePreset = CAMERA_PRESETS.lowAngle
+        const lowAnglePreset = CAMERA_PRESETS.lowAngleRim
         this.camera.position.set(lowAnglePreset.camera.x, lowAnglePreset.camera.y, lowAnglePreset.camera.z)
 
         this.camera.lookAt(0, 0, 0)

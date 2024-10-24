@@ -92,41 +92,65 @@ export const FRAGMENT_PARAMS = {
     },
 }
 
+export const WAVE_COLORS = {
+    deepOcean: 0x0b4f6c, // Deep blue with slight green tint
+    tropicalBlue: 0x0e87cc, // Your current color - good baseline
+    caribbeanBlue: 0x20b2aa, // Slightly more turquoise
+    glacierBlue: 0x89cff0, // Lighter, more icy blue
+    aquamarine: 0x7fffd4, // Stylized turquoise
+}
+
 export const CAMERA_PRESETS = {
-    lowAngle: {
-        name: "Low Angle",
-        light: { x: 40.0, y: 20.0, z: 40.0 },
-        camera: { x: -60.0, y: 15.0, z: -60.0 },
+    // Best for showing subsurface scattering
+    backlight: {
+        name: "Backlight Showcase",
+        light: { x: 60.0, y: 40.0, z: -80.0 },
+        camera: { x: -60.0, y: 25.0, z: 80.0 },
     },
-    dramatic: {
-        name: "Dramatic Shadows",
-        light: { x: 75.0, y: 40.0, z: 0.0 },
-        camera: { x: -70.0, y: 30.0, z: -50.0 },
+    sunrise: {
+        name: "Sunrise Glow",
+        light: { x: 100.0, y: 15.0, z: 0.0 },
+        camera: { x: -40.0, y: 8.0, z: -60.0 },
     },
-    threeQuarter: {
-        name: "Three Quarter View",
-        light: { x: 60.0, y: 40.0, z: 60.0 },
-        camera: { x: -80.0, y: 40.0, z: -80.0 },
-    },
-    sideLight: {
-        name: "Side Lighting",
-        light: { x: 80.0, y: 15.0, z: 0.0 },
-        camera: { x: -50.0, y: 25.0, z: -90.0 },
-    },
-    dramatic45: {
-        name: "Dramatic 45°",
-        light: { x: 60.0, y: 60.0, z: 0.0 },
+    overhead: {
+        name: "Overhead Drama",
+        light: { x: 20.0, y: 100.0, z: 20.0 },
         camera: { x: -70.0, y: 45.0, z: -70.0 },
     },
-    horizonView: {
-        name: "Horizon View",
-        light: { x: 40.0, y: 60.0, z: -80.0 }, // Light coming from this corner
-        camera: { x: -40.0, y: 4.0, z: 80.0 }, // Camera in opposite corner
+    lowAngleRim: {
+        name: "Low Angle Rim Light",
+        light: { x: 40.0, y: 15.0, z: 60.0 },
+        camera: { x: -50.0, y: 10.0, z: -80.0 },
     },
-    debugView: {
-        name: "Debug View",
-        light: { x: 1.0, y: -1.0, z: 1.0 }, // Light coming from this corner
+    grazing: {
+        name: "Grazing Light",
+        light: { x: 100.0, y: 8.0, z: 0.0 },
         camera: { x: -60.0, y: 15.0, z: -60.0 },
+    },
+    dualTone: {
+        name: "Dual Tone",
+        light: { x: 80.0, y: 30.0, z: -40.0 },
+        camera: { x: -70.0, y: 35.0, z: 70.0 },
+    },
+    dramatic: {
+        name: "Dramatic Contrast",
+        light: { x: 60.0, y: 50.0, z: -60.0 },
+        camera: { x: -50.0, y: 30.0, z: 50.0 },
+    },
+    underwater: {
+        name: "Underwater Feel",
+        light: { x: 0.0, y: 80.0, z: 0.0 },
+        camera: { x: -40.0, y: 5.0, z: -40.0 },
+    },
+    artistic: {
+        name: "Artistic Profile",
+        light: { x: 90.0, y: 25.0, z: 0.0 },
+        camera: { x: 0.0, y: 20.0, z: -90.0 },
+    },
+    scatterHighlight: {
+        name: "Scatter Highlight",
+        light: { x: 70.0, y: 20.0, z: -70.0 },
+        camera: { x: -40.0, y: 15.0, z: 60.0 },
     },
 }
 
@@ -155,14 +179,15 @@ export const UNIFORMS = {
     uWaveColor: {
         type: "v3",
         // value: new THREE.Color(0x3a4851), // Acerola colors
-        value: new THREE.Color(0x0e87cc), // My colors
+        // value: new THREE.Color(0x0e87cc), // My colors
+        value: new THREE.Color(0x20b2aa), // My colors
     },
     uLightDirection: {
         type: "v3",
         value: new THREE.Vector3(
-            CAMERA_PRESETS.lowAngle.light.x,
-            CAMERA_PRESETS.lowAngle.light.y,
-            CAMERA_PRESETS.lowAngle.light.z
+            CAMERA_PRESETS.lowAngleRim.light.x,
+            CAMERA_PRESETS.lowAngleRim.light.y,
+            CAMERA_PRESETS.lowAngleRim.light.z
         ).normalize(), // low angle light direction
     },
     uSmoothness: {

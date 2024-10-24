@@ -44,7 +44,7 @@ export default function ShadersScene() {
 
         const uniformData = createUniformData(mainScene.clock)
         const vertexShaderGUI = createVertexShaderGUI(uniformData)
-        const fragmentShaderGUI = createFragmentShaderGUI(arrowHelper, sphereMesh, mainScene.camera)
+        const fragmentShaderGUI = createFragmentShaderGUI(vertexShaderGUI, arrowHelper, sphereMesh, mainScene.camera)
 
         const geometry = new THREE.PlaneGeometry(
             PLANE_PARAMS.width,
@@ -89,7 +89,7 @@ export default function ShadersScene() {
 
         return () => {
             vertexShaderGUI.destroy()
-            fragmentShaderGUI.destroy()
+            // fragmentShaderGUI.destroy()
             meshGUI.destroy()
             geometry.dispose()
             material.dispose()

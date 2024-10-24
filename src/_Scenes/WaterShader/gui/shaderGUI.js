@@ -93,8 +93,8 @@ export function createVertexShaderGUI(uniformData) {
     return gui
 }
 
-export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
-    const gui = new dat.GUI()
+export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
+    // const gui = new dat.GUI()
 
     const fragmentFolder = gui.addFolder("Fragment Shader Properties")
 
@@ -112,7 +112,7 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
             y: UNIFORMS.uLightDirection.value.y,
             z: UNIFORMS.uLightDirection.value.z,
         },
-        cameraPreset: "lowAngle",
+        cameraPreset: "lowAngleRim",
         scatteringDepth: UNIFORMS.uScatteringDepth.value,
         backScatteringStrength: UNIFORMS.uBackScatteringStrength.value,
         sideScatteringStrength: UNIFORMS.uSideScatteringStrength.value,
@@ -224,13 +224,16 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
 
     fragmentFolder
         .add(config, "cameraPreset", {
-            "Low Angle": "lowAngle",
-            "Dramatic Shadows": "dramatic",
-            "Three Quarter View": "threeQuarter",
-            "Side Lighting": "sideLight",
-            "Dramatic 45°": "dramatic45",
-            "Horizon View": "horizonView",
-            "Debug View": "debugView",
+            "Backlight Showcase": "backlight",
+            "Sunrise Glow": "sunrise",
+            "Overhead Drama": "overhead",
+            "Low Angle Rim Light": "lowAngleRim",
+            "Grazing Light": "grazing",
+            "Dual Tone": "dualTone",
+            "Dramatic Contrast": "dramatic",
+            "Underwater Feel": "underwater",
+            "Artistic Profile": "artistic",
+            "Scatter Highlight": "scatterHighlight",
         })
         .name("Viewing Preset")
         .onChange(updatePreset)
@@ -261,9 +264,9 @@ export function createPlaneGUI(mesh, updateMesh) {
         updateMesh()
     }
 
-    meshFolder.add(PLANE_PARAMS, "width").min(5).max(200).step(1).name("Dimensions").onChange(adjustDimensions)
+    meshFolder.add(PLANE_PARAMS, "width").min(50).max(500).step(1).name("Dimensions").onChange(adjustDimensions)
 
-    meshFolder.add(PLANE_PARAMS, "widthSegments").min(1).max(150).step(1).name("Segments").onChange(adjustSegments)
+    meshFolder.add(PLANE_PARAMS, "widthSegments").min(1).max(256).step(1).name("Segments").onChange(adjustSegments)
 
     meshFolder.open()
 
