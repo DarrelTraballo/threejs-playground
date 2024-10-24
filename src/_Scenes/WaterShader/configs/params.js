@@ -2,10 +2,10 @@ import * as THREE from "three"
 import { randomBetween } from "../../../lib/utils"
 
 export const PLANE_PARAMS = {
-    width: 200,
-    height: 200,
-    widthSegments: 150,
-    heightSegments: 150,
+    width: 500,
+    height: 500,
+    widthSegments: 200,
+    heightSegments: 200,
     wireframe: false,
 }
 
@@ -66,6 +66,30 @@ export const FRAGMENT_PARAMS = {
             step: 1,
         },
     },
+    scatteringDepth: {
+        // min: 0.1,
+        min: 0.0,
+        max: 2.0,
+        step: 0.1,
+    },
+    backScatteringStrength: {
+        // min: 0.1,
+        min: 0.0,
+        max: 4.0,
+        step: 0.1,
+    },
+    sideScatteringStrength: {
+        // min: 0.1,
+        min: 0.0,
+        max: 4.0,
+        step: 0.1,
+    },
+    sideScatterFocus: {
+        // min: 1.0,
+        min: 1.0,
+        max: 20.0,
+        step: 1.0,
+    },
 }
 
 export const CAMERA_PRESETS = {
@@ -98,6 +122,11 @@ export const CAMERA_PRESETS = {
         name: "Horizon View",
         light: { x: 40.0, y: 60.0, z: -80.0 }, // Light coming from this corner
         camera: { x: -40.0, y: 4.0, z: 80.0 }, // Camera in opposite corner
+    },
+    debugView: {
+        name: "Debug View",
+        light: { x: 1.0, y: -1.0, z: 1.0 }, // Light coming from this corner
+        camera: { x: -60.0, y: 15.0, z: -60.0 },
     },
 }
 
@@ -134,7 +163,7 @@ export const UNIFORMS = {
             CAMERA_PRESETS.lowAngle.light.x,
             CAMERA_PRESETS.lowAngle.light.y,
             CAMERA_PRESETS.lowAngle.light.z
-        ), // low angle light direction
+        ).normalize(), // low angle light direction
     },
     uSmoothness: {
         type: "f",
@@ -143,6 +172,22 @@ export const UNIFORMS = {
     uFresnelPower: {
         type: "f",
         value: 10.0,
+    },
+    uScatteringDepth: {
+        type: "f",
+        value: 1.0,
+    },
+    uBackScatteringStrength: {
+        type: "f",
+        value: 2.0,
+    },
+    uSideScatteringStrength: {
+        type: "f",
+        value: 1.0,
+    },
+    uSideScatterFocus: {
+        type: "f",
+        value: 4.0,
     },
     uSkybox: {
         type: "t",

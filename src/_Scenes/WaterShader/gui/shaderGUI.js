@@ -113,6 +113,10 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
             z: UNIFORMS.uLightDirection.value.z,
         },
         cameraPreset: "lowAngle",
+        scatteringDepth: UNIFORMS.uScatteringDepth.value,
+        backScatteringStrength: UNIFORMS.uBackScatteringStrength.value,
+        sideScatteringStrength: UNIFORMS.uSideScatteringStrength.value,
+        sideScatterFocus: UNIFORMS.uSideScatterFocus.value,
     }
 
     const updatePreset = (presetName) => {
@@ -156,6 +160,46 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
             UNIFORMS.uFresnelPower.value = value
         })
 
+    fragmentFolder
+        .add(config, "scatteringDepth")
+        .min(FRAGMENT_PARAMS.scatteringDepth.min)
+        .max(FRAGMENT_PARAMS.scatteringDepth.max)
+        .step(FRAGMENT_PARAMS.scatteringDepth.step)
+        .name("Scattering Depth")
+        .onChange((value) => {
+            UNIFORMS.uScatteringDepth.value = value
+        })
+
+    fragmentFolder
+        .add(config, "backScatteringStrength")
+        .min(FRAGMENT_PARAMS.backScatteringStrength.min)
+        .max(FRAGMENT_PARAMS.backScatteringStrength.max)
+        .step(FRAGMENT_PARAMS.backScatteringStrength.step)
+        .name("Back Scattering Strength")
+        .onChange((value) => {
+            UNIFORMS.uBackScatteringStrength.value = value
+        })
+
+    fragmentFolder
+        .add(config, "sideScatteringStrength")
+        .min(FRAGMENT_PARAMS.sideScatteringStrength.min)
+        .max(FRAGMENT_PARAMS.sideScatteringStrength.max)
+        .step(FRAGMENT_PARAMS.sideScatteringStrength.step)
+        .name("Side Scattering Strength")
+        .onChange((value) => {
+            UNIFORMS.uSideScatteringStrength.value = value
+        })
+
+    fragmentFolder
+        .add(config, "sideScatterFocus")
+        .min(FRAGMENT_PARAMS.sideScatterFocus.min)
+        .max(FRAGMENT_PARAMS.sideScatterFocus.max)
+        .step(FRAGMENT_PARAMS.sideScatterFocus.step)
+        .name("Side Scatter Focus")
+        .onChange((value) => {
+            UNIFORMS.uSideScatterFocus.value = value
+        })
+
     const updateLightDirection = () => {
         const direction = new THREE.Vector3(
             config.lightDirection.x,
@@ -186,6 +230,7 @@ export function createFragmentShaderGUI(arrowHelper, sphereMesh, camera) {
             "Side Lighting": "sideLight",
             "Dramatic 45°": "dramatic45",
             "Horizon View": "horizonView",
+            "Debug View": "debugView",
         })
         .name("Viewing Preset")
         .onChange(updatePreset)
