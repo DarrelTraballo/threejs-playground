@@ -13,6 +13,15 @@ float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
+float randomSpeed(float seed) {
+    float baseSpeed = 1.0;
+    float variance = uWaveParams.z; // Higher speed = more variance
+    float randomValue = random(vec2(seed * 13.37 + uWaveParams.z, seed * 42.0)); // 0 to 1
+
+    // Map random value to range: baseSpeed ± variance
+    return baseSpeed + (randomValue * 2.0 - 1.0) * variance;
+}
+
 vec2 randomDirection(float seed) {
     float angle = random(vec2(seed, seed + 1.0)) * 2.0 * 3.14159265;
     return vec2(cos(angle), sin(angle));
@@ -40,9 +49,10 @@ float sineFbm(vec2 st) {
 
     for(int i = 0; i < uWaveCount; i++) {
         vec2 dir = randomDirection(float(i));
+        float speed = randomSpeed(float(i));
 
         // float wave = sineWave(st, dir, frequency, uWaveParams.z, float(i) * 0.5);
-        float wave = steepSineWave(st, dir, frequency, uWaveParams.z, float(i) * 0.5);
+        float wave = steepSineWave(st, dir, frequency, speed, float(i) * 0.5);
 
         value += amplitude * wave;
         maxValue += amplitude;
