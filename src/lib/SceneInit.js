@@ -56,14 +56,14 @@ export default class SceneInit {
         this.stats = Stats()
         document.body.appendChild(this.stats.dom)
 
-        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
-        this.ambientLight.castShadow = true
-        this.scene.add(this.ambientLight)
-
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1)
-        this.directionalLight.castShadow = true
-        this.directionalLight.position.set(1, 5, 0)
-        this.scene.add(this.directionalLight)
+        //         this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+        //         this.ambientLight.castShadow = true
+        //         this.scene.add(this.ambientLight)
+        //
+        //         this.directionalLight = new THREE.DirectionalLight(0xffffff, 1)
+        //         this.directionalLight.castShadow = true
+        //         this.directionalLight.position.set(1, 5, 0)
+        //         this.scene.add(this.directionalLight)
 
         // this.spotLight = new THREE.SpotLight(0xffffff, 0.5)
         // this.spotLight.castShadow = true
@@ -110,11 +110,13 @@ export default class SceneInit {
         window.addEventListener("resize", () => this.onWindowResize(), false)
     }
 
-    animate() {
-        window.requestAnimationFrame(this.animate.bind(this))
+    animate(callback) {
+        window.requestAnimationFrame(this.animate.bind(this, callback))
         this.render()
         this.stats.update()
         this.controls.update()
+
+        if (callback) callback(this.clock.getElapsedTime())
     }
 
     render() {

@@ -7,7 +7,7 @@ export const createUniformData = (clock) => ({
     ...UNIFORMS,
     uTime: {
         type: "f",
-        value: clock.getElapsedTime(),
+        value: 0,
     },
     uSkybox: UNIFORMS.uSkybox,
 })
@@ -210,7 +210,7 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
         arrowHelper.setDirection(direction)
         UNIFORMS.uLightDirection.value.copy(direction)
 
-        const lightDistance = 15
+        const lightDistance = 250
         sphereMesh.position.copy(direction.multiplyScalar(lightDistance))
     }
 

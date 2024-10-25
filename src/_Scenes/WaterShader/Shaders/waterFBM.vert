@@ -10,26 +10,30 @@ varying vec3 vWorldPosition;
 
 // 2D random
 float random(vec2 st) {
-    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+    vec2 k = vec2(23.14069263277926, 2.665144142690225);
+    return fract(cos(dot(st, k)) * 12345.6789);
 }
 
 float randomSpeed(float seed) {
     float baseSpeed = 1.0;
-    float variance = uWaveParams.z; // Higher speed = more variance
-    float randomValue = random(vec2(seed * 13.37 + uWaveParams.z, seed * 42.0)); // 0 to 1
+    float variance = uWaveParams.z;
+    float randomValue = random(vec2(seed * 12.9898, seed * 78.233));
 
-    // Map random value to range: baseSpeed ± variance
+    variance = clamp(variance, 0.0, 2.0);
     return baseSpeed + (randomValue * 2.0 - 1.0) * variance;
 }
 
 vec2 randomDirection(float seed) {
-    float angle = random(vec2(seed, seed + 1.0)) * 2.0 * 3.14159265;
-    return vec2(cos(angle), sin(angle));
+    float angle = random(vec2(seed * 43.758, seed * 28.957)) * 2.0 * 3.14159265;
+    return normalize(vec2(cos(angle), sin(angle)));
 }
 
 float sineWave(vec2 st, vec2 direction, float frequency, float speed, float phase) {
     float angle = -dot(st, direction);
-    return sin(angle * frequency + uTime * speed + phase);
+    float wave = sin(angle * frequency + uTime * speed + phase);
+
+    float asymmetry = clamp(uPeakHeight, 0.0, 5.0);
+    return sign(wave) * (exp(abs(wave) * asymmetry) - 1.0) * 0.5;
 }
 
 float steepSineWave(vec2 st, vec2 direction, float frequency, float speed, float phase) {
@@ -47,7 +51,12 @@ float sineFbm(vec2 st) {
     float value = 0.0;
     float maxValue = 0.0;
 
+    float maxFreq = 20.0;
+
     for(int i = 0; i < uWaveCount; i++) {
+        if(frequency > maxFreq)
+            break;
+
         vec2 dir = randomDirection(float(i));
         float speed = randomSpeed(float(i));
 
@@ -60,6 +69,8 @@ float sineFbm(vec2 st) {
         frequency *= 1.18;
         amplitude *= persistence;
     }
+
+    maxValue = max(maxValue, 0.001);
     return value / maxValue;
 }
 
@@ -84,6 +95,9 @@ void main() {
     vec2 pos = vec2(position.x, -position.y);
     // float height = fbm(pos);
     float height = sineFbm(pos);
+
+    float maxDisplacement = 2.0;
+    height = clamp(height, -maxDisplacement, maxDisplacement);
 
     // Calculate final position
     vec3 finalPosition = vec3(position.x, height * uWaveParams.x, -position.y);

@@ -8,16 +8,12 @@ import fragment from "../shaders/waterFrag.frag"
 import { createVertexShaderGUI, createFragmentShaderGUI, createUniformData, createPlaneGUI } from "../gui/shaderGUI"
 import { PLANE_PARAMS } from "../configs/params"
 
-export default function ShadersScene() {
+export default function WaterShader() {
     useEffect(() => {
         const mainScene = new SceneInit("shaderCanvas")
         mainScene.initialize()
-        mainScene.animate()
 
-        // const axesHelper = new THREE.AxesHelper(16)
-        // mainScene.scene.add(axesHelper)
-
-        const sphere = new THREE.SphereGeometry(0.5, 32, 32)
+        const sphere = new THREE.SphereGeometry(10, 32, 32)
         const sphereMaterial = new THREE.MeshBasicMaterial({
             color: 0xffff00,
         })
@@ -37,6 +33,10 @@ export default function ShadersScene() {
         mainScene.scene.add(arrowHelper)
         arrowHelper.visible = false
 
+        let lastTime = 0
+        const fixedDeltaTime = 1 / 60
+        let accumulator = 0
+
         const uniformData = createUniformData(mainScene.clock)
         const vertexShaderGUI = createVertexShaderGUI(uniformData)
         const fragmentShaderGUI = createFragmentShaderGUI(vertexShaderGUI, arrowHelper, sphereMesh, mainScene.camera)
@@ -50,7 +50,6 @@ export default function ShadersScene() {
         const material = new THREE.ShaderMaterial({
             wireframe: PLANE_PARAMS.wireframe,
             uniforms: uniformData,
-            // vertexShader: vertex,
             vertexShader: vertexFBM,
             fragmentShader: fragment,
         })
@@ -73,14 +72,20 @@ export default function ShadersScene() {
 
         const meshGUI = createPlaneGUI(mesh, updateMesh)
 
-        const render = () => {
-            uniformData.uTime.value = mainScene.clock.getElapsedTime()
+        const updateScene = (currentTime) => {
+            const deltaTime = currentTime - lastTime
+            lastTime = currentTime
+
+            accumulator += deltaTime
+            while (accumulator >= fixedDeltaTime) {
+                uniformData.uTime.value += fixedDeltaTime
+                accumulator -= fixedDeltaTime
+            }
 
             arrowHelper.position.copy(mesh.position)
-            window.requestAnimationFrame(render)
         }
 
-        render()
+        mainScene.animate(updateScene)
 
         return () => {
             vertexShaderGUI.destroy()
