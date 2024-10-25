@@ -1,17 +1,12 @@
 import { useEffect } from "react"
 import * as THREE from "three"
 
-import SceneInit from "../lib/SceneInit"
+import SceneInit from "../../../lib/SceneInit"
 // import vertex from "../_Scenes/WaterShader/Shaders/water.vert"
-import vertexFBM from "../_Scenes/WaterShader/Shaders/waterFBM.vert"
-import fragment from "../_Scenes/WaterShader/Shaders/waterFrag.frag"
-import {
-    createVertexShaderGUI,
-    createFragmentShaderGUI,
-    createUniformData,
-    createPlaneGUI,
-} from "../_Scenes/WaterShader/gui/shaderGUI"
-import { PLANE_PARAMS } from "../_Scenes/WaterShader/configs/params"
+import vertexFBM from "../shaders/waterFBM.vert"
+import fragment from "../shaders/waterFrag.frag"
+import { createVertexShaderGUI, createFragmentShaderGUI, createUniformData, createPlaneGUI } from "../gui/shaderGUI"
+import { PLANE_PARAMS } from "../configs/params"
 
 export default function ShadersScene() {
     useEffect(() => {
