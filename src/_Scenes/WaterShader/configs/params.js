@@ -2,8 +2,8 @@ import * as THREE from "three"
 import { randomBetween } from "../../../lib/utils"
 
 export const PLANE_PARAMS = {
-    width: 500,
-    height: 500,
+    width: 250,
+    height: 250,
     widthSegments: 200,
     heightSegments: 200,
     wireframe: false,

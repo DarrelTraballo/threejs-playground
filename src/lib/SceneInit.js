@@ -72,7 +72,7 @@ export default class SceneInit {
 
         const loader = new THREE.CubeTextureLoader()
 
-        const DayLightSkyboxPath = "src/assets/images/Daylight_Box_Pieces/"
+        const DayLightSkyboxPath = "assets/images/Daylight_Box_Pieces/"
         const DayLightSkyboxTextures = [
             "Daylight_Box_Right.bmp",
             "Daylight_Box_Left.bmp",
@@ -82,7 +82,7 @@ export default class SceneInit {
             "Daylight_Box_Back.bmp",
         ]
 
-        const skyUnitySkyboxPath = "src/assets/images/sky_unity/"
+        const skyUnitySkyboxPath = "assets/images/sky_unity/"
         const skyUnitySkyboxTextures = [
             "sky_test_right.png",
             "sky_test_left.png",
