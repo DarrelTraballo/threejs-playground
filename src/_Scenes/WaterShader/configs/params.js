@@ -2,8 +2,8 @@ import * as THREE from "three"
 import { randomBetween } from "../../../lib/utils"
 
 export const PLANE_PARAMS = {
-    width: 250,
-    height: 250,
+    width: 500,
+    height: 500,
     widthSegments: 200,
     heightSegments: 200,
     wireframe: false,
@@ -154,7 +154,11 @@ export const CAMERA_PRESETS = {
     },
 }
 
-export const UNIFORMS = {
+export const WATER_UNIFORMS = {
+    uTime: {
+        type: "f",
+        value: 0,
+    },
     uResolution: {
         type: "v2",
         value: new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -188,7 +192,7 @@ export const UNIFORMS = {
             CAMERA_PRESETS.lowAngleRim.light.x,
             CAMERA_PRESETS.lowAngleRim.light.y,
             CAMERA_PRESETS.lowAngleRim.light.z
-        ).normalize(), // low angle light direction
+        ),
     },
     uSmoothness: {
         type: "f",
@@ -217,5 +221,51 @@ export const UNIFORMS = {
     uSkybox: {
         type: "t",
         value: null,
+    },
+}
+
+export const POST_PROCESSING_UNIFOMRS = {
+    commonUniforms: {
+        tDiffuse: { value: null },
+        uTime: WATER_UNIFORMS.uTime,
+        uResolution: WATER_UNIFORMS.uResolution,
+        uLightDirection: WATER_UNIFORMS.uLightDirection,
+    },
+
+    sunUniforms: {
+        tDiffuse: { value: null },
+        uTime: WATER_UNIFORMS.uTime,
+        uResolution: WATER_UNIFORMS.uResolution,
+        uLightDirection: WATER_UNIFORMS.uLightDirection,
+        uSunColor: { value: new THREE.Vector3(1.0, 0.957, 0.839) },
+        uProjectionMatrix: { value: new THREE.Matrix4() },
+        uViewMatrix: { value: new THREE.Matrix4() },
+        uSunSize: { value: 0.02 },
+        uSunIntensity: { value: 5.0 },
+        uBloomStrength: { value: 0.5 },
+        uAtmosphereStrength: { value: 0.3 },
+    },
+
+    fogUniforms: {
+        tDiffuse: { value: null },
+        uTime: WATER_UNIFORMS.uTime,
+        uResolution: WATER_UNIFORMS.uResolution,
+        // uSkyColor: { value: new THREE.Vector3(0.6, 0.8, 1.0) },
+        uSkyColor: { value: new THREE.Vector3(0.7, 0.7, 0.75) },
+        uHorizonHeight: { value: 0.9 },
+        uFogDensity: { value: 1 },
+    },
+
+    causticsUniforms: {
+        tDiffuse: { value: null },
+        uTime: WATER_UNIFORMS.uTime,
+        uResolution: WATER_UNIFORMS.uResolution,
+        uIntensity: { value: 1.0 },
+    },
+
+    chromaticAberrationUniforms: {
+        tDiffuse: { value: null },
+        uTime: WATER_UNIFORMS.uTime,
+        uOffset: { value: 0.005 },
     },
 }

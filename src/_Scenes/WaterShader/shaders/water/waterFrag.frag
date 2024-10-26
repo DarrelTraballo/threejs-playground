@@ -67,10 +67,10 @@ void main() {
     vec3 skyboxColor = textureCube(uSkybox, reflectionDir).rgb;
 
     // Sun
-    float sunIntensity = 5.0;
+    float sunIntensity = 4.0;
     float sunSize = 0.02;
     float sunSoftness = 0.01;
-    float sun = sunDisc(reflectionDir, uLightDirection, sunSize, sunSoftness);
+    float sun = sunDisc(reflectionDir, lightDir, sunSize, sunSoftness);
     vec3 sunColor = lightColor * sunIntensity;
     vec3 reflection = skyboxColor + sun * sunColor;
 

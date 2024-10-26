@@ -1,6 +1,6 @@
 import { HashRouter as Router, Route, Routes, Navigate } from "react-router-dom"
 import { PageLayout } from "./components/PageLayout"
-import WaterShader from "./_Scenes/WaterShader/pages/WaterShader"
+import WaterScene from "./_Scenes/WaterShader/pages/WaterScene"
 import "./App.css"
 
 export default function App() {
@@ -12,7 +12,7 @@ export default function App() {
                     path="/Water"
                     element={
                         <PageLayout title="Water Shader Demo">
-                            <WaterShader />
+                            <WaterScene />
                         </PageLayout>
                     }
                 />

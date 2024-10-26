@@ -1,16 +1,14 @@
 import * as dat from "dat.gui"
 import * as THREE from "three"
 
-import { PLANE_PARAMS, WAVE_PARAMS, FRAGMENT_PARAMS, UNIFORMS, CAMERA_PRESETS } from "../configs/params"
-
-export const createUniformData = (clock) => ({
-    ...UNIFORMS,
-    uTime: {
-        type: "f",
-        value: 0,
-    },
-    uSkybox: UNIFORMS.uSkybox,
-})
+import {
+    PLANE_PARAMS,
+    WAVE_PARAMS,
+    FRAGMENT_PARAMS,
+    WATER_UNIFORMS,
+    POST_PROCESSING_UNIFOMRS,
+    CAMERA_PRESETS,
+} from "../configs/params"
 
 export function createVertexShaderGUI(uniformData) {
     const gui = new dat.GUI()
@@ -100,32 +98,43 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
 
     const config = {
         color: [
-            UNIFORMS.uWaveColor.value.r * 255,
-            UNIFORMS.uWaveColor.value.g * 255,
-            UNIFORMS.uWaveColor.value.b * 255,
+            WATER_UNIFORMS.uWaveColor.value.r * 255,
+            WATER_UNIFORMS.uWaveColor.value.g * 255,
+            WATER_UNIFORMS.uWaveColor.value.b * 255,
         ],
-        smoothness: UNIFORMS.uSmoothness.value,
-        fresnelPower: UNIFORMS.uFresnelPower.value,
+        smoothness: WATER_UNIFORMS.uSmoothness.value,
+        fresnelPower: WATER_UNIFORMS.uFresnelPower.value,
         showLightDirection: false,
         lightDirection: {
-            x: UNIFORMS.uLightDirection.value.x,
-            y: UNIFORMS.uLightDirection.value.y,
-            z: UNIFORMS.uLightDirection.value.z,
+            water: {
+                x: WATER_UNIFORMS.uLightDirection.value.x,
+                y: WATER_UNIFORMS.uLightDirection.value.y,
+                z: WATER_UNIFORMS.uLightDirection.value.z,
+            },
+            sun: {
+                x: POST_PROCESSING_UNIFOMRS.sunUniforms.uLightDirection.value.x,
+                y: POST_PROCESSING_UNIFOMRS.sunUniforms.uLightDirection.value.y,
+                z: POST_PROCESSING_UNIFOMRS.sunUniforms.uLightDirection.value.z,
+            },
         },
         cameraPreset: "lowAngleRim",
-        scatteringDepth: UNIFORMS.uScatteringDepth.value,
-        backScatteringStrength: UNIFORMS.uBackScatteringStrength.value,
-        sideScatteringStrength: UNIFORMS.uSideScatteringStrength.value,
-        sideScatterFocus: UNIFORMS.uSideScatterFocus.value,
+        scatteringDepth: WATER_UNIFORMS.uScatteringDepth.value,
+        backScatteringStrength: WATER_UNIFORMS.uBackScatteringStrength.value,
+        sideScatteringStrength: WATER_UNIFORMS.uSideScatteringStrength.value,
+        sideScatterFocus: WATER_UNIFORMS.uSideScatterFocus.value,
     }
 
     const updatePreset = (presetName) => {
         const preset = CAMERA_PRESETS[presetName]
         if (!preset) return
 
-        config.lightDirection.x = preset.light.x
-        config.lightDirection.y = preset.light.y
-        config.lightDirection.z = preset.light.z
+        config.lightDirection.water.x = preset.light.x
+        config.lightDirection.water.y = preset.light.y
+        config.lightDirection.water.z = preset.light.z
+
+        config.lightDirection.sun.x = preset.light.x
+        config.lightDirection.sun.y = preset.light.y
+        config.lightDirection.sun.z = preset.light.z
         updateLightDirection()
 
         camera.position.set(preset.camera.x, preset.camera.y, preset.camera.z)
@@ -137,7 +146,7 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
         .addColor(config, "color")
         .name("Wave Color")
         .onChange((value) => {
-            UNIFORMS.uWaveColor.value.setRGB(value[0] / 255, value[1] / 255, value[2] / 255)
+            WATER_UNIFORMS.uWaveColor.value.setRGB(value[0] / 255, value[1] / 255, value[2] / 255)
         })
 
     fragmentFolder
@@ -147,7 +156,7 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
         .step(FRAGMENT_PARAMS.smoothness.step)
         .name("Smoothness")
         .onChange((value) => {
-            UNIFORMS.uSmoothness.value = value
+            WATER_UNIFORMS.uSmoothness.value = value
         })
 
     fragmentFolder
@@ -157,7 +166,7 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
         .step(FRAGMENT_PARAMS.fresnelPower.step)
         .name("Fresnel Power")
         .onChange((value) => {
-            UNIFORMS.uFresnelPower.value = value
+            WATER_UNIFORMS.uFresnelPower.value = value
         })
 
     fragmentFolder
@@ -167,7 +176,7 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
         .step(FRAGMENT_PARAMS.scatteringDepth.step)
         .name("Scattering Depth")
         .onChange((value) => {
-            UNIFORMS.uScatteringDepth.value = value
+            WATER_UNIFORMS.uScatteringDepth.value = value
         })
 
     fragmentFolder
@@ -177,7 +186,7 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
         .step(FRAGMENT_PARAMS.backScatteringStrength.step)
         .name("Back Scattering Strength")
         .onChange((value) => {
-            UNIFORMS.uBackScatteringStrength.value = value
+            WATER_UNIFORMS.uBackScatteringStrength.value = value
         })
 
     fragmentFolder
@@ -187,7 +196,7 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
         .step(FRAGMENT_PARAMS.sideScatteringStrength.step)
         .name("Side Scattering Strength")
         .onChange((value) => {
-            UNIFORMS.uSideScatteringStrength.value = value
+            WATER_UNIFORMS.uSideScatteringStrength.value = value
         })
 
     fragmentFolder
@@ -197,21 +206,28 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
         .step(FRAGMENT_PARAMS.sideScatterFocus.step)
         .name("Side Scatter Focus")
         .onChange((value) => {
-            UNIFORMS.uSideScatterFocus.value = value
+            WATER_UNIFORMS.uSideScatterFocus.value = value
         })
 
     const updateLightDirection = () => {
-        const direction = new THREE.Vector3(
-            config.lightDirection.x,
-            config.lightDirection.y,
-            config.lightDirection.z
+        const waterDirection = new THREE.Vector3(
+            config.lightDirection.water.x,
+            config.lightDirection.water.y,
+            config.lightDirection.water.z
         ).normalize()
 
-        arrowHelper.setDirection(direction)
-        UNIFORMS.uLightDirection.value.copy(direction)
+        const postProcessDirection = new THREE.Vector3(
+            config.lightDirection.sun.x,
+            config.lightDirection.sun.y,
+            config.lightDirection.sun.z
+        ).normalize()
+
+        arrowHelper.setDirection(waterDirection)
+        WATER_UNIFORMS.uLightDirection.value.copy(waterDirection)
+        POST_PROCESSING_UNIFOMRS.sunUniforms.uLightDirection.value.copy(postProcessDirection)
 
         const lightDistance = 250
-        sphereMesh.position.copy(direction.multiplyScalar(lightDistance))
+        sphereMesh.position.copy(waterDirection.multiplyScalar(lightDistance))
     }
 
     fragmentFolder
@@ -264,7 +280,7 @@ export function createPlaneGUI(mesh, updateMesh) {
         updateMesh()
     }
 
-    meshFolder.add(PLANE_PARAMS, "width").min(50).max(500).step(1).name("Dimensions").onChange(adjustDimensions)
+    meshFolder.add(PLANE_PARAMS, "width").min(50).max(1000).step(10).name("Dimensions").onChange(adjustDimensions)
 
     meshFolder.add(PLANE_PARAMS, "widthSegments").min(1).max(256).step(1).name("Segments").onChange(adjustSegments)
 

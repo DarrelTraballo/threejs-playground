@@ -15,12 +15,11 @@ float random(vec2 st) {
 }
 
 float randomSpeed(float seed) {
-    float baseSpeed = 1.0;
-    float variance = uWaveParams.z;
     float randomValue = random(vec2(seed * 12.9898, seed * 78.233));
 
-    variance = clamp(variance, 0.0, 2.0);
-    return baseSpeed + (randomValue * 2.0 - 1.0) * variance;
+    float minSpeed = 0.1;
+    float maxSpeed = uWaveParams.z;
+    return mix(minSpeed, maxSpeed, randomValue);
 }
 
 vec2 randomDirection(float seed) {

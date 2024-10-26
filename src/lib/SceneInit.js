@@ -1,13 +1,17 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import Stats from "three/examples/jsm/libs/stats.module"
-import { UNIFORMS, CAMERA_PRESETS } from "../_Scenes/WaterShader/configs/params"
+import { EffectComposer } from "three/examples/jsm/Addons.js"
+import { RenderPass } from "three/examples/jsm/Addons.js"
+
+import { WATER_UNIFORMS, CAMERA_PRESETS } from "../_Scenes/WaterShader/configs/params"
 
 export default class SceneInit {
     constructor(canvasID) {
         this.scene = undefined
         this.camera = undefined
         this.renderer = undefined
+        this.composer = undefined
 
         this.clock = undefined
         this.stats = undefined
@@ -48,6 +52,9 @@ export default class SceneInit {
 
         this.renderer.setSize(window.innerWidth, window.innerHeight)
         document.body.appendChild(this.renderer.domElement)
+
+        this.composer = new EffectComposer(this.renderer)
+        this.composer.addPass(new RenderPass(this.scene, this.camera))
 
         this.clock = new THREE.Clock()
         this.controls = new OrbitControls(this.camera, this.renderer.domElement)
@@ -99,7 +106,7 @@ export default class SceneInit {
                 this.skybox = textureCube
                 this.scene.background = this.skybox
 
-                UNIFORMS.uSkybox.value = this.skybox
+                WATER_UNIFORMS.uSkybox.value = this.skybox
             },
             undefined,
             (error) => {
@@ -120,7 +127,8 @@ export default class SceneInit {
     }
 
     render() {
-        this.renderer.render(this.scene, this.camera)
+        // this.renderer.render(this.scene, this.camera)
+        this.composer.render()
     }
 
     onWindowResize() {

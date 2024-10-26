@@ -1,19 +1,18 @@
 import { useEffect } from "react"
 import * as THREE from "three"
+import { ShaderPass } from "three/examples/jsm/Addons.js"
 
 import SceneInit from "../../../lib/SceneInit"
-// import vertex from "../_Scenes/WaterShader/Shaders/water.vert"
-import vertexFBM from "../shaders/waterFBM.vert"
-import fragment from "../shaders/waterFrag.frag"
-import { createVertexShaderGUI, createFragmentShaderGUI, createUniformData, createPlaneGUI } from "../gui/shaderGUI"
-import { PLANE_PARAMS } from "../configs/params"
+import { WaterShader, SunShader, CausticsShader, FogShader, ChromaticAberrationShader } from "../shaders/shaders.js"
+import { createVertexShaderGUI, createFragmentShaderGUI, createPlaneGUI } from "../gui/shaderGUI"
+import { PLANE_PARAMS, WATER_UNIFORMS } from "../configs/params"
 
-export default function WaterShader() {
+export default function WaterScene() {
     useEffect(() => {
         const mainScene = new SceneInit("shaderCanvas")
         mainScene.initialize()
 
-        const sphere = new THREE.SphereGeometry(10, 32, 32)
+        const sphere = new THREE.SphereGeometry(0.5, 32, 32)
         const sphereMaterial = new THREE.MeshBasicMaterial({
             color: 0xffff00,
         })
@@ -37,7 +36,7 @@ export default function WaterShader() {
         const fixedDeltaTime = 1 / 60
         let accumulator = 0
 
-        const uniformData = createUniformData(mainScene.clock)
+        const uniformData = WATER_UNIFORMS
         const vertexShaderGUI = createVertexShaderGUI(uniformData)
         const fragmentShaderGUI = createFragmentShaderGUI(vertexShaderGUI, arrowHelper, sphereMesh, mainScene.camera)
 
@@ -47,12 +46,7 @@ export default function WaterShader() {
             PLANE_PARAMS.widthSegments,
             PLANE_PARAMS.heightSegments
         )
-        const material = new THREE.ShaderMaterial({
-            wireframe: PLANE_PARAMS.wireframe,
-            uniforms: uniformData,
-            vertexShader: vertexFBM,
-            fragmentShader: fragment,
-        })
+        const material = new THREE.ShaderMaterial(WaterShader)
 
         const mesh = new THREE.Mesh(geometry, material)
         // mesh.rotation.x = -Math.PI / 2
@@ -72,6 +66,14 @@ export default function WaterShader() {
 
         const meshGUI = createPlaneGUI(mesh, updateMesh)
 
+        const sunPass = new ShaderPass(SunShader)
+        const fogPass = new ShaderPass(FogShader)
+        const chromaticAberrationPass = new ShaderPass(ChromaticAberrationShader)
+
+        mainScene.composer.addPass(sunPass)
+        mainScene.composer.addPass(fogPass)
+        mainScene.composer.addPass(chromaticAberrationPass)
+
         const updateScene = (currentTime) => {
             const deltaTime = currentTime - lastTime
             lastTime = currentTime
@@ -79,6 +81,8 @@ export default function WaterShader() {
             accumulator += deltaTime
             while (accumulator >= fixedDeltaTime) {
                 uniformData.uTime.value += fixedDeltaTime
+                sunPass.uniforms.uProjectionMatrix.value.copy(mainScene.camera.projectionMatrix)
+                sunPass.uniforms.uViewMatrix.value.copy(mainScene.camera.matrixWorldInverse)
                 accumulator -= fixedDeltaTime
             }
 
