@@ -6,7 +6,7 @@ import {
     WAVE_PARAMS,
     FRAGMENT_PARAMS,
     WATER_UNIFORMS,
-    POST_PROCESSING_UNIFOMRS,
+    POST_PROCESSING_UNIFORMS,
     CAMERA_PRESETS,
 } from "../configs/params"
 
@@ -91,7 +91,7 @@ export function createVertexShaderGUI(uniformData) {
     return gui
 }
 
-export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
+export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera, sunPass) {
     // const gui = new dat.GUI()
 
     const fragmentFolder = gui.addFolder("Fragment Shader Properties")
@@ -112,9 +112,9 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
                 z: WATER_UNIFORMS.uLightDirection.value.z,
             },
             sun: {
-                x: POST_PROCESSING_UNIFOMRS.sunUniforms.uLightDirection.value.x,
-                y: POST_PROCESSING_UNIFOMRS.sunUniforms.uLightDirection.value.y,
-                z: POST_PROCESSING_UNIFOMRS.sunUniforms.uLightDirection.value.z,
+                x: POST_PROCESSING_UNIFORMS.sunUniforms.uLightDirection.value.x,
+                y: POST_PROCESSING_UNIFORMS.sunUniforms.uLightDirection.value.y,
+                z: POST_PROCESSING_UNIFORMS.sunUniforms.uLightDirection.value.z,
             },
         },
         cameraPreset: "lowAngleRim",
@@ -128,18 +128,28 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
         const preset = CAMERA_PRESETS[presetName]
         if (!preset) return
 
-        config.lightDirection.water.x = preset.light.x
-        config.lightDirection.water.y = preset.light.y
-        config.lightDirection.water.z = preset.light.z
+        const lightDir = new THREE.Vector3(preset.light.x, preset.light.y, preset.light.z).normalize()
 
-        config.lightDirection.sun.x = preset.light.x
-        config.lightDirection.sun.y = preset.light.y
-        config.lightDirection.sun.z = preset.light.z
-        updateLightDirection()
+        config.lightDirection.water.x = lightDir.x
+        config.lightDirection.water.y = lightDir.y
+        config.lightDirection.water.z = lightDir.z
+
+        config.lightDirection.sun.x = lightDir.x
+        config.lightDirection.sun.y = lightDir.y
+        config.lightDirection.sun.z = lightDir.z
+
+        WATER_UNIFORMS.uLightDirection.value.copy(lightDir)
+        POST_PROCESSING_UNIFORMS.sunUniforms.uLightDirection.value.copy(lightDir)
+
+        if (sunPass && sunPass.uniforms.uLightDirection) {
+            sunPass.uniforms.uLightDirection.value.copy(lightDir)
+        }
 
         camera.position.set(preset.camera.x, preset.camera.y, preset.camera.z)
 
         camera.lookAt(0, 0, 0)
+
+        updateLightDirection()
     }
 
     fragmentFolder
@@ -216,16 +226,21 @@ export function createFragmentShaderGUI(gui, arrowHelper, sphereMesh, camera) {
             config.lightDirection.water.z
         ).normalize()
 
-        const postProcessDirection = new THREE.Vector3(
+        const sunDirection = new THREE.Vector3(
             config.lightDirection.sun.x,
             config.lightDirection.sun.y,
             config.lightDirection.sun.z
         ).normalize()
 
-        arrowHelper.setDirection(waterDirection)
         WATER_UNIFORMS.uLightDirection.value.copy(waterDirection)
-        POST_PROCESSING_UNIFOMRS.sunUniforms.uLightDirection.value.copy(postProcessDirection)
+        POST_PROCESSING_UNIFORMS.sunUniforms.uLightDirection.value.copy(sunDirection)
 
+        // Update the actual shader pass uniform
+        if (sunPass && sunPass.uniforms.uLightDirection) {
+            sunPass.uniforms.uLightDirection.value.copy(sunDirection)
+        }
+
+        arrowHelper.setDirection(waterDirection)
         const lightDistance = 250
         sphereMesh.position.copy(waterDirection.multiplyScalar(lightDistance))
     }

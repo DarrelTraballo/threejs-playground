@@ -224,19 +224,33 @@ export const WATER_UNIFORMS = {
     },
 }
 
-export const POST_PROCESSING_UNIFOMRS = {
+export const POST_PROCESSING_UNIFORMS = {
     commonUniforms: {
         tDiffuse: { value: null },
         uTime: WATER_UNIFORMS.uTime,
         uResolution: WATER_UNIFORMS.uResolution,
-        uLightDirection: WATER_UNIFORMS.uLightDirection,
+        uLightDirection: {
+            type: "v3",
+            value: new THREE.Vector3(
+                CAMERA_PRESETS.lowAngleRim.light.x,
+                CAMERA_PRESETS.lowAngleRim.light.y,
+                CAMERA_PRESETS.lowAngleRim.light.z
+            ),
+        },
     },
 
     sunUniforms: {
         tDiffuse: { value: null },
         uTime: WATER_UNIFORMS.uTime,
         uResolution: WATER_UNIFORMS.uResolution,
-        uLightDirection: WATER_UNIFORMS.uLightDirection,
+        uLightDirection: {
+            type: "v3",
+            value: new THREE.Vector3(
+                CAMERA_PRESETS.lowAngleRim.light.x,
+                CAMERA_PRESETS.lowAngleRim.light.y,
+                CAMERA_PRESETS.lowAngleRim.light.z
+            ),
+        },
         uSunColor: { value: new THREE.Vector3(1.0, 0.957, 0.839) },
         uProjectionMatrix: { value: new THREE.Matrix4() },
         uViewMatrix: { value: new THREE.Matrix4() },

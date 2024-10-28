@@ -5,12 +5,16 @@ import { ShaderPass } from "three/examples/jsm/Addons.js"
 import SceneInit from "../../../lib/SceneInit"
 import { WaterShader, SunShader, CausticsShader, FogShader, ChromaticAberrationShader } from "../shaders/shaders.js"
 import { createVertexShaderGUI, createFragmentShaderGUI, createPlaneGUI } from "../gui/shaderGUI"
-import { PLANE_PARAMS, WATER_UNIFORMS } from "../configs/params"
+import { PLANE_PARAMS, WATER_UNIFORMS, POST_PROCESSING_UNIFORMS } from "../configs/params"
 
 export default function WaterScene() {
     useEffect(() => {
         const mainScene = new SceneInit("shaderCanvas")
         mainScene.initialize()
+
+        const sunPass = new ShaderPass(SunShader)
+        const fogPass = new ShaderPass(FogShader)
+        const chromaticAberrationPass = new ShaderPass(ChromaticAberrationShader)
 
         const sphere = new THREE.SphereGeometry(0.5, 32, 32)
         const sphereMaterial = new THREE.MeshBasicMaterial({
@@ -37,8 +41,8 @@ export default function WaterScene() {
         let accumulator = 0
 
         const uniformData = WATER_UNIFORMS
-        const vertexShaderGUI = createVertexShaderGUI(uniformData)
-        const fragmentShaderGUI = createFragmentShaderGUI(vertexShaderGUI, arrowHelper, sphereMesh, mainScene.camera)
+        const shaderGUI = createVertexShaderGUI(uniformData)
+        createFragmentShaderGUI(shaderGUI, arrowHelper, sphereMesh, mainScene.camera, sunPass)
 
         const geometry = new THREE.PlaneGeometry(
             PLANE_PARAMS.width,
@@ -66,10 +70,6 @@ export default function WaterScene() {
 
         const meshGUI = createPlaneGUI(mesh, updateMesh)
 
-        const sunPass = new ShaderPass(SunShader)
-        const fogPass = new ShaderPass(FogShader)
-        const chromaticAberrationPass = new ShaderPass(ChromaticAberrationShader)
-
         mainScene.composer.addPass(sunPass)
         mainScene.composer.addPass(fogPass)
         mainScene.composer.addPass(chromaticAberrationPass)
@@ -83,6 +83,7 @@ export default function WaterScene() {
                 uniformData.uTime.value += fixedDeltaTime
                 sunPass.uniforms.uProjectionMatrix.value.copy(mainScene.camera.projectionMatrix)
                 sunPass.uniforms.uViewMatrix.value.copy(mainScene.camera.matrixWorldInverse)
+                sunPass.uniforms.uLightDirection.value.copy(POST_PROCESSING_UNIFORMS.sunUniforms.uLightDirection.value)
                 accumulator -= fixedDeltaTime
             }
 
@@ -92,7 +93,7 @@ export default function WaterScene() {
         mainScene.animate(updateScene)
 
         return () => {
-            vertexShaderGUI.destroy()
+            shaderGUI.destroy()
             // fragmentShaderGUI.destroy()
             meshGUI.destroy()
             geometry.dispose()

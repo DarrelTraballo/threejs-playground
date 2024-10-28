@@ -1,4 +1,4 @@
-import { WATER_UNIFORMS, POST_PROCESSING_UNIFOMRS } from "../configs/params"
+import { WATER_UNIFORMS, POST_PROCESSING_UNIFORMS } from "../configs/params"
 
 // Main Water Shader
 import waterFBM from "./water/waterFBM.vert"
@@ -19,25 +19,30 @@ export const WaterShader = {
 }
 
 export const SunShader = {
-    uniforms: POST_PROCESSING_UNIFOMRS.sunUniforms,
+    uniforms: {
+        ...POST_PROCESSING_UNIFORMS.sunUniforms,
+        uLightDirection: {
+            value: POST_PROCESSING_UNIFORMS.sunUniforms.uLightDirection.value.clone(),
+        },
+    },
     vertexShader: postProcessVertex,
     fragmentShader: sun,
 }
 
 export const CausticsShader = {
-    uniforms: POST_PROCESSING_UNIFOMRS.causticsUniforms,
+    uniforms: POST_PROCESSING_UNIFORMS.causticsUniforms,
     vertexShader: postProcessVertex,
     fragmentShader: caustics,
 }
 
 export const FogShader = {
-    uniforms: POST_PROCESSING_UNIFOMRS.fogUniforms,
+    uniforms: POST_PROCESSING_UNIFORMS.fogUniforms,
     vertexShader: postProcessVertex,
     fragmentShader: fog,
 }
 
 export const ChromaticAberrationShader = {
-    uniforms: POST_PROCESSING_UNIFOMRS.chromaticAberrationUniforms,
+    uniforms: POST_PROCESSING_UNIFORMS.chromaticAberrationUniforms,
     vertexShader: postProcessVertex,
     fragmentShader: chromaticAberration,
 }
