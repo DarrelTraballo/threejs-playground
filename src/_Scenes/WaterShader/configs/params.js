@@ -1,5 +1,6 @@
 import * as THREE from "three"
 import { randomBetween } from "../../../lib/utils"
+import { CAMERA_PRESETS, WATER_PRESETS } from "./presets"
 
 export const PLANE_PARAMS = {
     width: 500,
@@ -90,6 +91,21 @@ export const FRAGMENT_PARAMS = {
         max: 20.0,
         step: 1.0,
     },
+    waterIOR: {
+        min: 1.2,
+        max: 1.4,
+        step: 0.001,
+    },
+    turbidity: {
+        min: 0.1,
+        max: 1,
+        step: 0.1,
+    },
+    depthColor: {
+        min: 10,
+        max: 200,
+        step: 10,
+    },
 }
 
 export const WAVE_COLORS = {
@@ -98,60 +114,10 @@ export const WAVE_COLORS = {
     caribbeanBlue: 0x20b2aa, // Slightly more turquoise
     glacierBlue: 0x89cff0, // Lighter, more icy blue
     aquamarine: 0x7fffd4, // Stylized turquoise
-}
-
-export const CAMERA_PRESETS = {
-    // Best for showing subsurface scattering
-    backlight: {
-        name: "Backlight Showcase",
-        light: { x: 60.0, y: 40.0, z: -80.0 },
-        camera: { x: -60.0, y: 25.0, z: 80.0 },
-    },
-    sunrise: {
-        name: "Sunrise Glow",
-        light: { x: 100.0, y: 15.0, z: 0.0 },
-        camera: { x: -40.0, y: 8.0, z: -60.0 },
-    },
-    overhead: {
-        name: "Overhead Drama",
-        light: { x: 20.0, y: 100.0, z: 20.0 },
-        camera: { x: -70.0, y: 45.0, z: -70.0 },
-    },
-    lowAngleRim: {
-        name: "Low Angle Rim Light",
-        light: { x: 40.0, y: 15.0, z: 60.0 },
-        camera: { x: -50.0, y: 10.0, z: -80.0 },
-    },
-    grazing: {
-        name: "Grazing Light",
-        light: { x: 100.0, y: 8.0, z: 0.0 },
-        camera: { x: -60.0, y: 15.0, z: -60.0 },
-    },
-    dualTone: {
-        name: "Dual Tone",
-        light: { x: 80.0, y: 30.0, z: -40.0 },
-        camera: { x: -70.0, y: 35.0, z: 70.0 },
-    },
-    dramatic: {
-        name: "Dramatic Contrast",
-        light: { x: 60.0, y: 50.0, z: -60.0 },
-        camera: { x: -50.0, y: 30.0, z: 50.0 },
-    },
-    underwater: {
-        name: "Underwater Feel",
-        light: { x: 0.0, y: 80.0, z: 0.0 },
-        camera: { x: -40.0, y: 5.0, z: -40.0 },
-    },
-    artistic: {
-        name: "Artistic Profile",
-        light: { x: 90.0, y: 25.0, z: 0.0 },
-        camera: { x: 0.0, y: 20.0, z: -90.0 },
-    },
-    scatterHighlight: {
-        name: "Scatter Highlight",
-        light: { x: 70.0, y: 20.0, z: -70.0 },
-        camera: { x: -40.0, y: 15.0, z: 60.0 },
-    },
+    swimmingPool: 0x0080b3,
+    calmOcean: 0x004d80,
+    tropicalLagoon: 0x008099,
+    murlyLake: 0x334d33,
 }
 
 export const WATER_UNIFORMS = {
@@ -180,11 +146,11 @@ export const WATER_UNIFORMS = {
         type: "f",
         value: 0.8,
     },
-    uWaveColor: {
+    uWaterColor: {
         type: "v3",
         // value: new THREE.Color(0x3a4851), // Acerola colors
         // value: new THREE.Color(0x0e87cc), // My colors
-        value: new THREE.Color(0x20b2aa), // My colors
+        value: new THREE.Color(WATER_PRESETS.defaultWater.uniforms.uWaterColor), // My colors
     },
     uLightDirection: {
         type: "v3",
@@ -221,6 +187,18 @@ export const WATER_UNIFORMS = {
     uSkybox: {
         type: "t",
         value: null,
+    },
+    uWaterIOR: {
+        type: "f",
+        value: 1.333,
+    },
+    uTurbidity: {
+        type: "f",
+        value: 0.1,
+    },
+    uDepthColor: {
+        type: "f",
+        value: 50.0,
     },
 }
 

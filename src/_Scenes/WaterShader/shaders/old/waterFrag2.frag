@@ -1,4 +1,4 @@
-uniform vec3 uWaveColor;
+uniform vec3 uWaterColor;
 uniform vec3 uLightDirection;
 uniform float uSmoothness;
 
@@ -15,7 +15,7 @@ void main() {
 
     vec3 ambient = vec3(0.0, 0.0, 0.1);
     float diffuseFactor = max(dot(lightDir, normal), 0.0) * 0.5 + 0.5;
-    vec3 diffuse = lightColor * uWaveColor * diffuseFactor * diffuseFactor;
+    vec3 diffuse = lightColor * uWaterColor * diffuseFactor * diffuseFactor;
     vec3 specular = lightColor * pow(max(dot(halfVector, normal), 0.0), uSmoothness);
 
     vec3 finalColor = ambient + diffuse + specular;

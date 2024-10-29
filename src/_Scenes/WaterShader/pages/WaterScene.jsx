@@ -3,8 +3,8 @@ import * as THREE from "three"
 import { ShaderPass } from "three/examples/jsm/Addons.js"
 
 import SceneInit from "../../../lib/SceneInit"
-import { WaterShader, SunShader, CausticsShader, FogShader, ChromaticAberrationShader } from "../shaders/shaders.js"
-import { createVertexShaderGUI, createFragmentShaderGUI, createPlaneGUI } from "../gui/shaderGUI"
+import { WaterShader, SunShader, FogShader, ChromaticAberrationShader } from "../shaders/shaders.js"
+import { createPlaneGUI, initializeShaderGUI } from "../gui/shaderGUI"
 import { PLANE_PARAMS, WATER_UNIFORMS, POST_PROCESSING_UNIFORMS } from "../configs/params"
 
 export default function WaterScene() {
@@ -16,7 +16,7 @@ export default function WaterScene() {
         const fogPass = new ShaderPass(FogShader)
         const chromaticAberrationPass = new ShaderPass(ChromaticAberrationShader)
 
-        const sphere = new THREE.SphereGeometry(0.5, 32, 32)
+        const sphere = new THREE.SphereGeometry(5, 32, 32)
         const sphereMaterial = new THREE.MeshBasicMaterial({
             color: 0xffff00,
         })
@@ -40,9 +40,7 @@ export default function WaterScene() {
         const fixedDeltaTime = 1 / 60
         let accumulator = 0
 
-        const uniformData = WATER_UNIFORMS
-        const shaderGUI = createVertexShaderGUI(uniformData)
-        createFragmentShaderGUI(shaderGUI, arrowHelper, sphereMesh, mainScene.camera, sunPass)
+        const shaderGUI = initializeShaderGUI(arrowHelper, sphereMesh, mainScene.camera, sunPass)
 
         const geometry = new THREE.PlaneGeometry(
             PLANE_PARAMS.width,
@@ -80,7 +78,7 @@ export default function WaterScene() {
 
             accumulator += deltaTime
             while (accumulator >= fixedDeltaTime) {
-                uniformData.uTime.value += fixedDeltaTime
+                WATER_UNIFORMS.uTime.value += fixedDeltaTime
                 sunPass.uniforms.uProjectionMatrix.value.copy(mainScene.camera.projectionMatrix)
                 sunPass.uniforms.uViewMatrix.value.copy(mainScene.camera.matrixWorldInverse)
                 sunPass.uniforms.uLightDirection.value.copy(POST_PROCESSING_UNIFORMS.sunUniforms.uLightDirection.value)

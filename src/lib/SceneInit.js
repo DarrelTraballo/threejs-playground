@@ -4,7 +4,8 @@ import Stats from "three/examples/jsm/libs/stats.module"
 import { EffectComposer } from "three/examples/jsm/Addons.js"
 import { RenderPass } from "three/examples/jsm/Addons.js"
 
-import { WATER_UNIFORMS, CAMERA_PRESETS } from "../_Scenes/WaterShader/configs/params"
+import { WATER_UNIFORMS } from "../_Scenes/WaterShader/configs/params"
+import { CAMERA_PRESETS } from "../_Scenes/WaterShader/configs/presets"
 
 export default class SceneInit {
     constructor(canvasID) {
