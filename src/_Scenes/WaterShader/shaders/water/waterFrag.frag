@@ -42,29 +42,33 @@ void main() {
     vec3 viewDir = normalize(cameraPosition - vWorldPosition);
     float NdotV = max(dot(normal, viewDir), 0.0);
 
+    // Calculate Fresnel
+    float F0 = 0.04;
+    float fresnelFactor = schlickFresnel(NdotV, F0);
+
+    float depthFactor = clamp(length(cameraPosition - vWorldPosition) / 50.0, 0.0, 1.0);
+
+    // Subsurface Scattering
+    vec3 scatterColor = mix(uWaveColor, vec3(0.0, 0.4, 0.8),depthFactor);
+    vec3 scatter = subsurfaceScattering(normal, lightDir, viewDir, scatterColor) * (1.0 - fresnelFactor * 0.5);
+    
     // ambient lighting
     vec3 ambient = vec3(0.5, 0.5, 0.5);
 
-    // Subsurface Scattering
-    vec3 scatter = subsurfaceScattering(normal, lightDir, viewDir, uWaveColor);
-
     // diffuse lighting
-    // vec3 lightDir = normalize(vec3(0.0, 0.0, 0.0) - vWorldPosition);
     float diffuseStrength = max(0.0, dot(lightDir, normal));
     vec3 diffuse = diffuseStrength * lightColor;
 
     // Specular Light and Fresnel Effect
-    float F0 = 0.04;
-    float fresnelFactor = schlickFresnel(NdotV, F0);
-
     vec3 reflectSource = normalize(reflect(-lightDir, normal));
     float specularStrength = max(0.0, dot(viewDir, reflectSource));
     specularStrength = pow(specularStrength, uSmoothness);
-    vec3 specular = specularStrength * fresnelFactor * lightColor;
+    vec3 specular = specularStrength * fresnelFactor * lightColor * (1.0 + fresnelFactor * 0.5);
 
     // Environment Lighting
     vec3 reflectionDir = reflect(-viewDir, normalize(vNormal));
-    vec3 skyboxColor = textureCube(uSkybox, reflectionDir).rgb;
+    vec3 blurredReflectionDir = normalize(reflectionDir + vec3(fresnelFactor * 0.05));
+    vec3 skyboxColor = textureCube(uSkybox, blurredReflectionDir).rgb;
 
     // Sun
     float sunIntensity = 4.0;
@@ -74,13 +78,11 @@ void main() {
     vec3 sunColor = lightColor * sunIntensity;
     vec3 reflection = skyboxColor + sun * sunColor;
 
-    // vec3 lighting = ambient + diffuse + specular;
+    // Combining Lighting
     vec3 lighting = ambient + scatter + specular;
-    // vec3 lighting = ambient * 0.5 + scatter * 2.0 + specular * 0.5;
-    // lighting = ambient * 0.0 + diffuse * 0.5 + specular * 0.5;
     
-    vec3 baseColor = uWaveColor;
-    vec3 finalColor = mix(baseColor * lighting, reflection, fresnelFactor);
+    // Final Color Blend with Fresnel and Depth Factor
+    vec3 finalColor = mix(uWaveColor * lighting, reflection, fresnelFactor * depthFactor);
 
     gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
 }

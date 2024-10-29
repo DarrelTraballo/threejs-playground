@@ -5,7 +5,6 @@ uniform float uPeakHeight;
 
 varying vec3 vPosition;
 varying vec3 vNormal;
-varying vec2 vUv;
 varying vec3 vWorldPosition;
 
 // 2D random
@@ -16,7 +15,6 @@ float random(vec2 st) {
 
 float randomSpeed(float seed) {
     float randomValue = random(vec2(seed * 12.9898, seed * 78.233));
-
     float minSpeed = 0.1;
     float maxSpeed = uWaveParams.z;
     return mix(minSpeed, maxSpeed, randomValue);
@@ -50,7 +48,7 @@ float sineFbm(vec2 st) {
     float value = 0.0;
     float maxValue = 0.0;
 
-    float maxFreq = 20.0;
+    float maxFreq = 25.0;
 
     for(int i = 0; i < uWaveCount; i++) {
         if(frequency > maxFreq)
@@ -59,7 +57,6 @@ float sineFbm(vec2 st) {
         vec2 dir = randomDirection(float(i));
         float speed = randomSpeed(float(i));
 
-        // float wave = sineWave(st, dir, frequency, uWaveParams.z, float(i) * 0.5);
         float wave = steepSineWave(st, dir, frequency, speed, float(i) * 0.5);
 
         value += amplitude * wave;
@@ -88,21 +85,25 @@ vec3 calculateNormal(vec2 pos, float height, float epsilon) {
 }
 
 void main() {
-    vUv = uv;
-
     // Calculate base position
     vec2 pos = vec2(position.x, -position.y);
-    // float height = fbm(pos);
-    float height = sineFbm(pos);
 
+    // Dynamically dampen wave amplitude for distant waves
+    float distanceDamp = 1.0 / (1.0 + 0.02 * length(cameraPosition - vec3(position.xy, 0.0)));
+
+    // Adjust height by distanceDamp for distant waves
+    float height = sineFbm(pos) * distanceDamp;
     float maxDisplacement = 2.0;
     height = clamp(height, -maxDisplacement, maxDisplacement);
+
+    // Apply peak height scaling
+    height *= uPeakHeight;
 
     // Calculate final position
     vec3 finalPosition = vec3(position.x, height * uWaveParams.x, -position.y);
 
     // Calculate normal
-    vec3 newNormal = calculateNormal(pos, height, 0.01);
+    vec3 newNormal = calculateNormal(pos, height, 0.01 * distanceDamp);
 
     vNormal = normalMatrix * newNormal;
     vPosition = finalPosition;
